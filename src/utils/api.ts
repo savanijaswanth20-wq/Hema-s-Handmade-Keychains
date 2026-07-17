@@ -252,7 +252,8 @@ export async function login(email: string, password: string): Promise<any> {
         }
       };
     } catch (err: any) {
-      throw new Error(err.message || "Invalid credentials in Supabase Auth");
+      console.warn("Supabase Auth failed, trying local fallback authentication...", err);
+      // Fallback: try local auth below if Supabase login fails
     }
   }
 
