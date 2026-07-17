@@ -6,7 +6,21 @@ const supabaseUrl = process.env.SUPABASE_URL || "";
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "";
 
 export const isSupabaseConfigured = (): boolean => {
-  return !!(supabaseUrl && supabaseAnonKey && supabaseUrl !== "MY_SUPABASE_URL");
+  try {
+    if (!supabaseUrl || !supabaseAnonKey) return false;
+    if (
+      supabaseUrl === "MY_SUPABASE_URL" ||
+      supabaseUrl === "YOUR_SUPABASE_URL" ||
+      supabaseUrl.includes("your-project") ||
+      supabaseUrl.includes("placeholder")
+    ) {
+      return false;
+    }
+    const url = new URL(supabaseUrl);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (e) {
+    return false;
+  }
 };
 
 // Lazy initialization of Supabase Client to avoid crashes when keys are missing

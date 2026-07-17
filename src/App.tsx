@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { HelmetProvider, Helmet } from "react-helmet-async";
 import { Sparkles, Heart, RefreshCw, MapPin } from "lucide-react";
 import Header from "./components/Header";
 import ElegantBackground from "./components/ElegantBackground";
@@ -11,6 +12,70 @@ import ContactSection from "./components/ContactSection";
 import DashboardSection from "./components/DashboardSection";
 import { Product, Order, Review, AdminSettings } from "./types";
 import * as api from "./utils/api";
+
+// Helper function to dynamically resolve SEO Meta Tags for each section
+const getMetaForTab = (tab: string, businessName: string = "Hema's Handmade Keychains") => {
+  const defaultImage = "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600";
+  switch (tab) {
+    case "products":
+      return {
+        title: `Shop Custom Clay Keychains & Charms - ${businessName}`,
+        description: `Browse our adorable collection of handmade glossy clay keychains, customized cartoon charms, and bulk gifts. 100% water-resistant clay art.`,
+        url: "https://hemas-keychains.com/products",
+        image: defaultImage,
+      };
+    case "wishlist":
+      return {
+        title: `My Cute Keychain Wishlist - ${businessName}`,
+        description: `View your saved favorites from Hema's Handmade Keychains. Save your dream clay charms and cartoon keychains for customized gifts.`,
+        url: "https://hemas-keychains.com/wishlist",
+        image: defaultImage,
+      };
+    case "track":
+      return {
+        title: `Track Your Order - ${businessName}`,
+        description: `Track your customized clay keychains and handmade charm orders with Hema's secure real-time tracking system.`,
+        url: "https://hemas-keychains.com/track",
+        image: defaultImage,
+      };
+    case "gallery":
+      return {
+        title: `Clay Charm Art Gallery - ${businessName}`,
+        description: `Browse the visual gallery of our custom handcrafted polymer clay charms, miniature cartoon keychains, and custom gloss collections.`,
+        url: "https://hemas-keychains.com/gallery",
+        image: defaultImage,
+      };
+    case "contact":
+      return {
+        title: `Contact ${businessName} - Bulk Orders & Customizations`,
+        description: `Get in touch with Hema for personalized clay keychain orders, corporate gifting, or custom cartoon charms. Located in Marathahalli, Bengaluru.`,
+        url: "https://hemas-keychains.com/contact",
+        image: defaultImage,
+      };
+    case "cart":
+      return {
+        title: `Your Cute Checkout Basket - ${businessName}`,
+        description: `Review your selected handmade keychains, custom charms, and water-resistant clay art before completing your purchase.`,
+        url: "https://hemas-keychains.com/cart",
+        image: defaultImage,
+      };
+    case "dashboard":
+      return {
+        title: `Admin Dashboard - ${businessName}`,
+        description: `Store administration dashboard for Hema's Handmade Keychains. Manage products, view orders, and update shop configuration settings.`,
+        url: "https://hemas-keychains.com/dashboard",
+        image: defaultImage,
+      };
+    case "home":
+    default:
+      return {
+        title: `${businessName} - Cute Clay Crafts & Custom Charms`,
+        description: `Explore Hema's Tiny Universe of extra cute handmade clay charms, customizable cartoon keychains, and glossy water-resistant accessories. Handcrafted in Bengaluru.`,
+        url: "https://hemas-keychains.com/",
+        image: defaultImage,
+      };
+  }
+};
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>("home");
@@ -276,10 +341,31 @@ export default function App() {
     }
   };
 
+  const meta = getMetaForTab(currentTab, upiSettings.businessName);
+
   return (
-    <div className="min-h-screen flex flex-col bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-300 relative">
-      {/* Elegant Website Background with Soft Light Pink Gradients, Sparks, Bokeh & Clay Flowers */}
-      <ElegantBackground />
+    <HelmetProvider>
+      <div className="min-h-screen flex flex-col bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-300 relative">
+        <Helmet>
+          <title>{meta.title}</title>
+          <meta name="description" content={meta.description} />
+          
+          {/* Open Graph / Facebook */}
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content={meta.title} />
+          <meta property="og:description" content={meta.description} />
+          <meta property="og:url" content={meta.url} />
+          <meta property="og:image" content={upiSettings.logoUrl || meta.image} />
+          
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={meta.title} />
+          <meta name="twitter:description" content={meta.description} />
+          <meta name="twitter:image" content={upiSettings.logoUrl || meta.image} />
+        </Helmet>
+        
+        {/* Elegant Website Background with Soft Light Pink Gradients, Sparks, Bokeh & Clay Flowers */}
+        <ElegantBackground />
       
       {/* Dynamic customizable Top Announcement Marquee Banner (configured by Admin!) */}
       {upiSettings.bannerMessage && (
@@ -496,5 +582,6 @@ export default function App() {
       </footer>
 
     </div>
+    </HelmetProvider>
   );
 }

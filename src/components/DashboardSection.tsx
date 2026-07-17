@@ -33,8 +33,8 @@ export default function DashboardSection({
   const [subTab, setSubTab] = useState<"metrics" | "products" | "orders" | "qr">("metrics");
   
   // Login form state
-  const [email, setEmail] = useState("hema@keychains.com");
-  const [password, setPassword] = useState("admin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
 
@@ -205,10 +205,10 @@ export default function DashboardSection({
         <form onSubmit={handleLoginSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-gray-400" /> Admin Email
+              <Mail className="w-3.5 h-3.5 text-gray-400" /> Admin Username / Email
             </label>
             <input
-              type="email"
+              type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -238,10 +238,6 @@ export default function DashboardSection({
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        <div className="p-3 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-100/30 text-[10px] font-bold text-blue-700 text-center">
-          💡 TESTING HINT: Submit with default email & password to test the premium dashboard features!
-        </div>
       </div>
     );
   }
