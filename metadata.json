@@ -1,0 +1,6 @@
+{
+  "name": "Hema's Handmade Keychains",
+  "description": "Premium, colorful, animated handmade keychain store and admin dashboard located in Marathahalli, Bangalore.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
