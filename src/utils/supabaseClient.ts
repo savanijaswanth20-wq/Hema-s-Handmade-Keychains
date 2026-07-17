@@ -64,16 +64,25 @@ export function subscribeToTableChanges(
 // =========================================================================
 // AUTHENTICATION CODE (Sign up, Login, Reset, Session, Admin Checks)
 // =========================================================================
+function formatEmail(input: string): string {
+  if (!input.includes("@")) {
+    return `${input.toLowerCase()}@hemas-keychains.com`;
+  }
+  return input;
+}
+
 export async function supabaseSignUp(email: string, password: string, name: string) {
   if (!supabase) throw new Error("Supabase is not configured.");
   
+  const formattedEmail = formatEmail(email);
+  const isDefaultAdmin = formattedEmail === "handmade@hemas-keychains.com";
   const { data, error } = await supabase.auth.signUp({
-    email,
+    email: formattedEmail,
     password,
     options: {
       data: {
         name,
-        role: "customer"
+        role: isDefaultAdmin ? "admin" : "customer"
       }
     }
   });
@@ -85,18 +94,56 @@ export async function supabaseSignUp(email: string, password: string, name: stri
 export async function supabaseLogin(email: string, password: string) {
   if (!supabase) throw new Error("Supabase is not configured.");
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+  const formattedEmail = formatEmail(email);
+  let authData: any = null;
 
-  if (error) throw error;
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: formattedEmail,
+      password
+    });
+    if (error) throw error;
+    authData = data;
+  } catch (err: any) {
+    // If sign in fails and it matches the requested default admin credentials, attempt auto-signup
+    if (formattedEmail === "handmade@hemas-keychains.com") {
+      try {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: formattedEmail,
+          password,
+          options: {
+            data: {
+              name: "Hema",
+              role: "admin"
+            }
+          }
+        });
+        if (signUpError) throw signUpError;
+        
+        if (signUpData.user) {
+          // Retry signing in
+          const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+            email: formattedEmail,
+            password
+          });
+          if (retryError) throw retryError;
+          authData = retryData;
+        } else {
+          throw err;
+        }
+      } catch (signUpErr) {
+        throw err; // throw original login error if auto-signup fails
+      }
+    } else {
+      throw err;
+    }
+  }
 
   // Fetch role and details from customer/profile table
   const { data: customerData, error: profileError } = await supabase
     .from("customers")
     .select("*")
-    .eq("id", data.user?.id)
+    .eq("id", authData.user?.id)
     .single();
 
   if (profileError) {
@@ -104,11 +151,11 @@ export async function supabaseLogin(email: string, password: string) {
   }
 
   return {
-    user: data.user,
+    user: authData.user,
     profile: customerData || {
-      email: data.user?.email,
-      name: data.user?.user_metadata?.name || email.split("@")[0],
-      role: data.user?.user_metadata?.role || "customer"
+      email: authData.user?.email,
+      name: authData.user?.user_metadata?.name || formattedEmail.split("@")[0],
+      role: authData.user?.user_metadata?.role || "customer"
     }
   };
 }
@@ -121,7 +168,8 @@ export async function supabaseLogout() {
 
 export async function supabaseResetPassword(email: string) {
   if (!supabase) throw new Error("Supabase is not configured.");
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  const formattedEmail = formatEmail(email);
+  const { error } = await supabase.auth.resetPasswordForEmail(formattedEmail, {
     redirectTo: window.location.origin
   });
   if (error) throw error;
@@ -543,4 +591,53 @@ export async function supabaseUploadImage(
   // Get public URL
   const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
   return data.publicUrl;
+}
+
+export async function supabaseUpdateCredentials(credentials: {
+  currentEmail: string;
+  currentPassword?: string;
+  newEmail: string;
+  newPassword?: string;
+}) {
+  if (!supabase) throw new Error("Supabase is not configured.");
+
+  // Verify credentials first by signing in with the current password
+  const currentFormattedEmail = formatEmail(credentials.currentEmail);
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: currentFormattedEmail,
+    password: credentials.currentPassword || ""
+  });
+  if (signInError) {
+    throw new Error("Verification failed: " + signInError.message);
+  }
+
+  const updateAttrs: any = {};
+  if (credentials.newEmail) {
+    updateAttrs.email = formatEmail(credentials.newEmail);
+  }
+  if (credentials.newPassword) {
+    updateAttrs.password = credentials.newPassword;
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser(updateAttrs);
+  if (updateError) {
+    throw updateError;
+  }
+
+  // Sync profile details to the public.customers table
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { error: profileError } = await supabase
+      .from("customers")
+      .update({
+        email: updateAttrs.email || user.email,
+        name: credentials.newEmail ? credentials.newEmail.split("@")[0] : undefined
+      })
+      .eq("id", user.id);
+    if (profileError) {
+      console.error("Profile sync error on customers table:", profileError);
+    }
+  }
+
+  return { success: true };
 }

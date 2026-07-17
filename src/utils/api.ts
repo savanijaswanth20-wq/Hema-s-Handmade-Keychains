@@ -12,7 +12,8 @@ import {
   supabaseSaveSettings,
   supabaseFetchReviews,
   supabaseAddReview,
-  supabaseLogin
+  supabaseLogin,
+  supabaseUpdateCredentials
 } from "./supabaseClient";
 
 const API_BASE = "/api";
@@ -270,6 +271,14 @@ export async function updateAdminCredentials(credentials: {
   newEmail: string;
   newPassword?: string;
 }): Promise<any> {
+  if (isSupabaseConfigured()) {
+    try {
+      return await supabaseUpdateCredentials(credentials);
+    } catch (err: any) {
+      throw new Error(err.message || "Failed to update credentials in Supabase Auth");
+    }
+  }
+
   const res = await fetch(`${API_BASE}/auth/update-credentials`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
