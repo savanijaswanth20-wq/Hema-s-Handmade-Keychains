@@ -485,6 +485,33 @@ app.post("/api/auth/login", (req, res) => {
   }
 });
 
+app.post("/api/auth/update-credentials", (req, res) => {
+  const db = readDb();
+  const { currentEmail, currentPassword, newEmail, newPassword } = req.body;
+
+  const adminIndex = db.users.findIndex((u: any) => u.role === "admin");
+  if (adminIndex !== -1) {
+    const admin = db.users[adminIndex];
+    if (admin.email.toLowerCase() === currentEmail.toLowerCase() && admin.password === currentPassword) {
+      if (newEmail) admin.email = newEmail;
+      if (newPassword) admin.password = newPassword;
+      writeDb(db);
+      res.json({ success: true, message: "Credentials updated successfully." });
+    } else {
+      res.status(401).json({ error: "Invalid current username or password." });
+    }
+  } else {
+    db.users.push({
+      email: newEmail || "HANDMADE",
+      password: newPassword || "6304702907",
+      role: "admin",
+      name: "Hema"
+    });
+    writeDb(db);
+    res.json({ success: true, message: "Admin created successfully." });
+  }
+});
+
 // 6. Export Orders to CSV (Excel compatible)
 app.get("/api/orders/export", (req, res) => {
   const db = readDb();

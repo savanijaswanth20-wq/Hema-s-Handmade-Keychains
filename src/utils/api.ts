@@ -264,6 +264,24 @@ export async function login(email: string, password: string): Promise<any> {
   return await res.json();
 }
 
+export async function updateAdminCredentials(credentials: {
+  currentEmail: string;
+  currentPassword?: string;
+  newEmail: string;
+  newPassword?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE}/auth/update-credentials`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to update credentials");
+  }
+  return await res.json();
+}
+
 // Local Storage Fallbacks to ensure robust offline capability
 function getFallbackProducts(): Product[] {
   const saved = localStorage.getItem("hema_fallback_products");

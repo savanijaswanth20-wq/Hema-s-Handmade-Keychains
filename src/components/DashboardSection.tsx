@@ -4,6 +4,7 @@ import {
   RefreshCw, QrCode, Lock, Mail, Key, LayoutDashboard, ArrowRight, Eye, Sparkles, AlertCircle
 } from "lucide-react";
 import { Product, Order, AdminSettings, OrderStatus } from "../types";
+import { updateAdminCredentials } from "../utils/api";
 
 interface DashboardSectionProps {
   products: Product[];
@@ -49,6 +50,39 @@ export default function DashboardSection({
   const [logoUrl, setLogoUrl] = useState(upiSettings.logoUrl || "");
   const [settingsSuccess, setSettingsSuccess] = useState(false);
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
+
+  // Admin Credentials Update Form State
+  const [currEmail, setCurrEmail] = useState("");
+  const [currPass, setCurrPass] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [credError, setCredError] = useState("");
+  const [credSuccess, setCredSuccess] = useState("");
+  const [updatingCreds, setUpdatingCreds] = useState(false);
+
+  const handleUpdateCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCredError("");
+    setCredSuccess("");
+    setUpdatingCreds(true);
+    try {
+      await updateAdminCredentials({
+        currentEmail: currEmail,
+        currentPassword: currPass,
+        newEmail,
+        newPassword: newPass
+      });
+      setCredSuccess("Admin credentials updated successfully!");
+      setCurrEmail("");
+      setCurrPass("");
+      setNewEmail("");
+      setNewPass("");
+    } catch (err: any) {
+      setCredError(err.message || "Failed to update credentials. Check current credentials.");
+    } finally {
+      setUpdatingCreds(false);
+    }
+  };
 
   // Edit/Add Product form state
   const [editingProd, setEditingProd] = useState<Product | null>(null);
@@ -1025,6 +1059,86 @@ export default function DashboardSection({
               Update Storefront Config
             </button>
           </form>
+
+          {/* Admin Security & Credentials Update Form */}
+          <div className="border-t border-pink-100 dark:border-neutral-800 pt-6 mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Lock className="w-4 h-4 text-brand-rose" />
+              <h5 className="font-serif text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Update Admin Login Credentials</h5>
+            </div>
+
+            {credSuccess && (
+              <div className="p-3 mb-4 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold text-center">
+                ✔️ {credSuccess}
+              </div>
+            )}
+
+            {credError && (
+              <div className="p-3 mb-4 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-bold text-center">
+                ❌ {credError}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateCredentials} className="space-y-4 text-xs font-semibold">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5 text-left">
+                  <label className="text-gray-700 dark:text-gray-300">Current Username/Email *</label>
+                  <input
+                    type="text"
+                    required
+                    value={currEmail}
+                    onChange={(e) => setCurrEmail(e.target.value)}
+                    placeholder="Enter current email or username"
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
+                  />
+                </div>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-gray-700 dark:text-gray-300">Current Password *</label>
+                  <input
+                    type="password"
+                    required
+                    value={currPass}
+                    onChange={(e) => setCurrPass(e.target.value)}
+                    placeholder="Enter current password"
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5 text-left">
+                  <label className="text-gray-700 dark:text-gray-300">New Username/Email *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="Enter new email or username"
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
+                  />
+                </div>
+                <div className="space-y-1.5 text-left">
+                  <label className="text-gray-700 dark:text-gray-300">New Password *</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPass}
+                    onChange={(e) => setNewPass(e.target.value)}
+                    placeholder="Enter new secure password"
+                    className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-semibold"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={updatingCreds}
+                className="w-full py-2.5 bg-neutral-800 hover:bg-neutral-900 text-white dark:bg-neutral-700 dark:hover:bg-neutral-600 rounded-xl font-bold text-xs uppercase cursor-pointer transition-all disabled:opacity-50"
+              >
+                {updatingCreds ? "Updating Credentials..." : "Change Login Credentials"}
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
