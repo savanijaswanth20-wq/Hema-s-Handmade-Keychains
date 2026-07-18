@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { 
   TrendingUp, Package, AlertTriangle, Users, FileSpreadsheet, Plus, Trash2, Edit2, CheckCircle2, 
-  RefreshCw, QrCode, Lock, Mail, Key, LayoutDashboard, ArrowRight, Eye, Sparkles, AlertCircle
+  RefreshCw, QrCode, Lock, Mail, Key, LayoutDashboard, ArrowRight, Eye, Sparkles, AlertCircle, Upload
 } from "lucide-react";
 import { Product, Order, AdminSettings, OrderStatus } from "../types";
 import { updateAdminCredentials } from "../utils/api";
+import { supabaseUploadImage } from "../utils/supabaseClient";
 
 interface DashboardSectionProps {
   products: Product[];
@@ -94,6 +95,8 @@ export default function DashboardSection({
   const [prodStock, setProdStock] = useState(10);
   const [prodTag, setProdTag] = useState("100% Glossy Clay");
   const [prodImageUrl, setProdImageUrl] = useState("");
+  const [prodImageFile, setProdImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,9 +130,23 @@ export default function DashboardSection({
     setTimeout(() => setSettingsSuccess(false), 3000);
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodName.trim()) return;
+
+    setIsUploading(true);
+    let uploadedUrl = prodImageUrl;
+
+    try {
+      if (prodImageFile) {
+        uploadedUrl = await supabaseUploadImage("product-images", prodImageFile);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image.");
+      setIsUploading(false);
+      return;
+    }
 
     const payload = {
       name: prodName,
@@ -138,7 +155,7 @@ export default function DashboardSection({
       price: Number(prodPrice),
       stock: Number(prodStock),
       tag: prodTag,
-      images: prodImageUrl ? [prodImageUrl] : undefined
+      images: uploadedUrl ? [uploadedUrl] : undefined
     };
 
     if (editingProd) {
@@ -157,6 +174,8 @@ export default function DashboardSection({
     setProdStock(10);
     setProdTag("100% Glossy Clay");
     setProdImageUrl("");
+    setProdImageFile(null);
+    setIsUploading(false);
   };
 
   const startEditProduct = (p: Product) => {
@@ -169,6 +188,7 @@ export default function DashboardSection({
     setProdStock(p.stock);
     setProdTag(p.tag || "100% Glossy Clay");
     setProdImageUrl(p.images[0] || "");
+    setProdImageFile(null);
   };
 
   const handleExportOrders = () => {
@@ -618,21 +638,50 @@ export default function DashboardSection({
               </div>
 
               <div className="space-y-1">
-                <label className="text-gray-700 dark:text-gray-300">Display Photo URL</label>
-                <input
-                  type="url"
-                  placeholder="Paste high-res photograph link"
-                  value={prodImageUrl}
-                  onChange={(e) => setProdImageUrl(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
-                />
+                <label className="text-gray-700 dark:text-gray-300">Display Photo URL or Upload File</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    placeholder="Paste image link..."
+                    value={prodImageUrl}
+                    onChange={(e) => setProdImageUrl(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
+                  />
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setProdImageFile(e.target.files[0]);
+                          setProdImageUrl(""); // Clear URL if file selected
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <button
+                      type="button"
+                      className="px-4 py-2.5 bg-brand-rose/10 text-brand-rose hover:bg-brand-rose/20 rounded-xl font-bold transition-colors flex items-center gap-2"
+                    >
+                      <Upload size={16} />
+                      {prodImageFile ? 'File Selected' : 'Upload'}
+                    </button>
+                  </div>
+                </div>
+                {prodImageFile && (
+                  <p className="text-xs text-brand-rose mt-1 truncate">
+                    Selected: {prodImageFile.name}
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-2.5 pt-2">
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-brand-rose hover:bg-brand-rose-dark text-white rounded-xl font-bold cursor-pointer transition-colors"
+                  disabled={isUploading}
+                  className="flex-1 py-3 bg-brand-rose hover:bg-brand-rose-dark text-white rounded-xl font-bold cursor-pointer transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
                 >
+                  {isUploading && <RefreshCw className="animate-spin w-4 h-4" />}
                   {editingProd ? "Save Changes" : "Create Item"}
                 </button>
                 {(editingProd || isAddingNew) && (
