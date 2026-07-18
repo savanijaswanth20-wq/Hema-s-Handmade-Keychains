@@ -75,7 +75,23 @@ export async function supabaseSignUp(email: string, password: string, name: stri
   if (!supabase) throw new Error("Supabase is not configured.");
   
   const formattedEmail = formatEmail(email);
-  const isDefaultAdmin = formattedEmail === "handmade@hemas-keychains.com";
+  
+  // Read custom admin credentials to check if user is admin
+  let customAdminEmail = "handmade@hemas-keychains.com";
+  if (typeof window !== "undefined" && window.localStorage) {
+    const saved = localStorage.getItem("hema_custom_admin_creds");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.email) customAdminEmail = parsed.email;
+      } catch (e) {}
+    }
+  }
+  const isDefaultAdmin = 
+    formattedEmail.toLowerCase() === "handmade@hemas-keychains.com" ||
+    formattedEmail.toLowerCase() === customAdminEmail.toLowerCase() ||
+    formattedEmail.toLowerCase() === `${customAdminEmail.split("@")[0].toLowerCase()}@hemas-keychains.com`;
+
   const { data, error } = await supabase.auth.signUp({
     email: formattedEmail,
     password,
@@ -105,8 +121,24 @@ export async function supabaseLogin(email: string, password: string) {
     if (error) throw error;
     authData = data;
   } catch (err: any) {
-    // If sign in fails and it matches the requested default admin credentials, attempt auto-signup
-    if (formattedEmail === "handmade@hemas-keychains.com") {
+    // Read custom admin credentials to allow newly updated admin username/email to auto-signup in Supabase
+    let customAdminEmail = "handmade@hemas-keychains.com";
+    if (typeof window !== "undefined" && window.localStorage) {
+      const saved = localStorage.getItem("hema_custom_admin_creds");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.email) customAdminEmail = parsed.email;
+        } catch (e) {}
+      }
+    }
+    const isMatchedAdmin = 
+      formattedEmail.toLowerCase() === "handmade@hemas-keychains.com" ||
+      formattedEmail.toLowerCase() === customAdminEmail.toLowerCase() ||
+      formattedEmail.toLowerCase() === `${customAdminEmail.split("@")[0].toLowerCase()}@hemas-keychains.com`;
+
+    // If sign in fails and it matches the requested default or custom admin credentials, attempt auto-signup
+    if (isMatchedAdmin) {
       try {
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formattedEmail,
@@ -150,7 +182,22 @@ export async function supabaseLogin(email: string, password: string) {
     console.error("Failed to fetch customer profile", profileError);
   }
 
-  const isDefaultAdmin = formattedEmail === "handmade@hemas-keychains.com";
+  // Read custom admin credentials to check if user is admin
+  let customAdminEmail = "handmade@hemas-keychains.com";
+  if (typeof window !== "undefined" && window.localStorage) {
+    const saved = localStorage.getItem("hema_custom_admin_creds");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.email) customAdminEmail = parsed.email;
+      } catch (e) {}
+    }
+  }
+  const isDefaultAdmin = 
+    formattedEmail.toLowerCase() === "handmade@hemas-keychains.com" ||
+    formattedEmail.toLowerCase() === customAdminEmail.toLowerCase() ||
+    formattedEmail.toLowerCase() === `${customAdminEmail.split("@")[0].toLowerCase()}@hemas-keychains.com`;
+
   const finalProfile = customerData ? { ...customerData } : {
     email: authData.user?.email,
     name: authData.user?.user_metadata?.name || formattedEmail.split("@")[0],
