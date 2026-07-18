@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { HelmetProvider, Helmet } from "react-helmet-async";
 import { Sparkles, Heart, RefreshCw, MapPin } from "lucide-react";
+import { Toaster, toast } from "sonner";
 import Header from "./components/Header";
 import ElegantBackground from "./components/ElegantBackground";
 import HomeSection from "./components/HomeSection";
@@ -236,7 +237,9 @@ export default function App() {
 
       // Empty basket upon success
       setCart([]);
+      toast.success("Order placed successfully! We will process it shortly.");
     } catch (err: any) {
+      toast.error(err.message || "Failed to submit order. Please try again.");
       throw new Error(err.message || "Failed to submit order. Please try again.");
     }
   };
@@ -300,7 +303,9 @@ export default function App() {
     try {
       const updated = await api.updateOrderStatus(id, status, payStatus);
       setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+      toast.success(`Order updated successfully!`);
     } catch (err) {
+      toast.error("Error updating status");
       console.error("Error updating status", err);
     }
   };
@@ -346,6 +351,7 @@ export default function App() {
   return (
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-300 relative">
+        <Toaster richColors position="bottom-right" />
         <Helmet>
           <title>{meta.title}</title>
           <meta name="description" content={meta.description} />
