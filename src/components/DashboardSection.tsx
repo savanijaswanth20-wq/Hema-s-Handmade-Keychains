@@ -641,8 +641,8 @@ export default function DashboardSection({
                 <label className="text-gray-700 dark:text-gray-300">Display Photo URL or Upload File</label>
                 <div className="flex gap-2 items-center">
                   <input
-                    type="url"
-                    placeholder="Paste image link..."
+                    type="text"
+                    placeholder="Paste image link or path..."
                     value={prodImageUrl}
                     onChange={(e) => setProdImageUrl(e.target.value)}
                     className="flex-1 px-3.5 py-2.5 bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
