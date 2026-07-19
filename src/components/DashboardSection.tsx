@@ -5,7 +5,8 @@ import {
 } from "lucide-react";
 import { Product, Order, AdminSettings, OrderStatus } from "../types";
 import { updateAdminCredentials } from "../utils/api";
-import { supabaseUploadImage } from "../utils/supabaseClient";
+import { supabaseUploadImage, isSupabaseConfigured } from "../utils/supabaseClient";
+import { toast } from "sonner";
 
 interface DashboardSectionProps {
   products: Product[];
@@ -135,18 +136,6 @@ export default function DashboardSection({
     if (!prodName.trim()) return;
 
     setIsUploading(true);
-    let uploadedUrl = prodImageUrl;
-
-    try {
-      if (prodImageFile) {
-        uploadedUrl = await supabaseUploadImage("product-images", prodImageFile);
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image.");
-      setIsUploading(false);
-      return;
-    }
 
     const payload = {
       name: prodName,
@@ -155,7 +144,7 @@ export default function DashboardSection({
       price: Number(prodPrice),
       stock: Number(prodStock),
       tag: prodTag,
-      images: uploadedUrl ? [uploadedUrl] : undefined
+      images: prodImageUrl ? [prodImageUrl] : undefined
     };
 
     if (editingProd) {
@@ -637,41 +626,52 @@ export default function DashboardSection({
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-gray-700 dark:text-gray-300">Display Photo URL or Upload File</label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    placeholder="Paste image link or path..."
-                    value={prodImageUrl}
-                    onChange={(e) => setProdImageUrl(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
-                  />
-                  <div className="relative">
-                    <input
-                      type="file"
+              <div className="space-y-2">
+                <label className="text-gray-700 dark:text-gray-300 font-medium">Product Photo (Direct Upload)</label>
+                <div className="flex flex-col items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-neutral-50 dark:hover:bg-bray-800 dark:bg-neutral-900 hover:bg-neutral-100 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors overflow-hidden relative">
+                    {prodImageUrl ? (
+                      <img src={prodImageUrl} alt="Preview" className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-3 text-brand-rose/60" />
+                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-bold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, or WEBP</p>
+                      </div>
+                    )}
+                    <input 
+                      type="file" 
+                      className="hidden" 
                       accept="image/*"
                       onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setProdImageFile(e.target.files[0]);
-                          setProdImageUrl(""); // Clear URL if file selected
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setProdImageUrl(reader.result as string);
+                            setProdImageFile(null); // Clear any file ref
+                          };
+                          reader.readAsDataURL(file);
                         }
                       }}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
-                    <button
+                  </label>
+                </div>
+                {prodImageUrl && (
+                  <div className="flex justify-between items-center px-1 mt-1">
+                    <p className="text-xs text-green-600 dark:text-green-400 font-medium truncate">
+                      Photo attached successfully
+                    </p>
+                    <button 
                       type="button"
-                      className="px-4 py-2.5 bg-brand-rose/10 text-brand-rose hover:bg-brand-rose/20 rounded-xl font-bold transition-colors flex items-center gap-2"
+                      onClick={() => setProdImageUrl("")}
+                      className="text-xs text-red-500 hover:text-red-600 font-medium"
                     >
-                      <Upload size={16} />
-                      {prodImageFile ? 'File Selected' : 'Upload'}
+                      Remove Photo
                     </button>
                   </div>
-                </div>
-                {prodImageFile && (
-                  <p className="text-xs text-brand-rose mt-1 truncate">
-                    Selected: {prodImageFile.name}
-                  </p>
                 )}
               </div>
 
