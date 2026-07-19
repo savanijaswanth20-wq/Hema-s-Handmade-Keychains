@@ -98,6 +98,7 @@ export default function DashboardSection({
   const [prodImageUrl, setProdImageUrl] = useState("");
   const [prodImageFile, setProdImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageFit, setImageFit] = useState<"contain" | "cover">("contain");
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -629,9 +630,9 @@ export default function DashboardSection({
               <div className="space-y-2">
                 <label className="text-gray-700 dark:text-gray-300 font-medium">Product Photo (Direct Upload)</label>
                 <div className="flex flex-col items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-neutral-50 dark:hover:bg-bray-800 dark:bg-neutral-900 hover:bg-neutral-100 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors overflow-hidden relative">
+                  <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer bg-neutral-50 dark:hover:bg-bray-800 dark:bg-neutral-900 hover:bg-neutral-100 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors overflow-hidden relative group">
                     {prodImageUrl ? (
-                      <img src={prodImageUrl} alt="Preview" className="w-full h-full object-contain" />
+                      <img src={prodImageUrl} alt="Preview" className={`w-full h-full object-${imageFit}`} />
                     ) : (
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-8 h-8 mb-3 text-brand-rose/60" />
@@ -664,13 +665,25 @@ export default function DashboardSection({
                     <p className="text-xs text-green-600 dark:text-green-400 font-medium truncate">
                       Photo attached successfully
                     </p>
-                    <button 
-                      type="button"
-                      onClick={() => setProdImageUrl("")}
-                      className="text-xs text-red-500 hover:text-red-600 font-medium"
-                    >
-                      Remove Photo
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setImageFit(prev => prev === "contain" ? "cover" : "contain");
+                        }}
+                        className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                      >
+                        {imageFit === "contain" ? "Fill Area" : "Fit to Area"}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setProdImageUrl("")}
+                        className="text-xs text-red-500 hover:text-red-600 font-medium"
+                      >
+                        Remove Photo
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
