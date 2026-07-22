@@ -94,7 +94,8 @@ export default function App() {
     qrImageUrl: "",
     logoUrl: "",
     heroTitle: "Hema's Tiny Universe",
-    heroDescription: "I handcraft cute accessories in my home unit located in Marathahalli, Bengaluru. Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts."
+    heroDescription: "I handcraft cute accessories in my home unit located in Marathahalli, Bengaluru. Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts.",
+    galleryImages: []
   });
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -520,7 +521,7 @@ export default function App() {
             )}
 
             {currentTab === "gallery" && (
-              <GallerySection />
+              <GallerySection upiSettings={upiSettings} />
             )}
 
             {currentTab === "contact" && (

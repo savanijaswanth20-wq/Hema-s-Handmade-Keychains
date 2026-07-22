@@ -1,45 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { Sparkles, Heart, Camera, Award, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import { AdminSettings } from "../types";
 
-export default function GallerySection() {
-  const items = [
+export default function GallerySection({ upiSettings }: { upiSettings: AdminSettings }) {
+  const defaultItems = [
     {
+      id: "1",
       title: "Baby Penguin holding a heart",
       desc: "Freshly glossed baby clay penguin. Completely baked and scratch-proof.",
       category: "Glossy Clay",
       url: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80"
     },
     {
+      id: "2",
       title: "Pressed Flower Initial Charm",
       desc: "Delicate alphabet filled with real dried lavender flowers and gold foil flakes.",
       category: "Resin Art",
       url: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=80"
     },
     {
+      id: "3",
       title: "Sleeping Cat on Pastel Cloud",
       desc: "A custom order requested by a customer in spice garden Marathahalli.",
       category: "Custom Order",
       url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800&auto=format&fit=crop&q=80"
     },
     {
+      id: "4",
       title: "Chubby Clay Cupcake Set",
       desc: "Glazed and sprinkled mini cupcakes designed as dynamic friends souvenirs.",
       category: "Food Crafts",
       url: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=80"
     },
     {
+      id: "5",
       title: "Starry Sky Resin Cube",
       desc: "A combination of translucent dark pigments and gold glitter powder.",
       category: "Resin Art",
       url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=80"
     },
     {
+      id: "6",
       title: "Clay Cheeseburger Figurine",
       desc: "Extremely realistic sesame seeds, melted cheddar, and lettuce slices.",
       category: "Food Crafts",
       url: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=800&auto=format&fit=crop&q=80"
     }
   ];
+
+  const items = upiSettings?.galleryImages?.length ? upiSettings.galleryImages : defaultItems;
 
   const [activeIdx, setActiveIdx] = useState(0);
 

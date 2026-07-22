@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { 
   TrendingUp, Package, AlertTriangle, Users, FileSpreadsheet, Plus, Trash2, Edit2, CheckCircle2, 
-  RefreshCw, QrCode, Lock, Mail, Key, LayoutDashboard, ArrowRight, Eye, Sparkles, AlertCircle, Upload
+  RefreshCw, QrCode, Lock, Mail, Key, LayoutDashboard, ArrowRight, Eye, Sparkles, AlertCircle, Upload, Camera
 } from "lucide-react";
 import { Product, Order, AdminSettings, OrderStatus } from "../types";
 import { updateAdminCredentials } from "../utils/api";
@@ -33,7 +33,7 @@ export default function DashboardSection({
   user,
   onLogin,
 }: DashboardSectionProps) {
-  const [subTab, setSubTab] = useState<"metrics" | "products" | "orders" | "qr">("metrics");
+  const [subTab, setSubTab] = useState<"metrics" | "products" | "orders" | "qr" | "gallery">("metrics");
   
   // Login form state
   const [email, setEmail] = useState("");
@@ -52,6 +52,7 @@ export default function DashboardSection({
   const [logoUrl, setLogoUrl] = useState(upiSettings.logoUrl || "");
   const [heroTitle, setHeroTitle] = useState(upiSettings.heroTitle || "Hema's Handmade Clay Accessories");
   const [heroDescription, setHeroDescription] = useState(upiSettings.heroDescription || "I handcraft cute accessories in my home unit located in Marathahalli, Bengaluru. Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts.");
+  const [galleryImages, setGalleryImages] = useState(upiSettings.galleryImages || []);
   const [settingsSuccess, setSettingsSuccess] = useState(false);
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
 
@@ -130,7 +131,8 @@ export default function DashboardSection({
       qrImageUrl,
       logoUrl,
       heroTitle,
-      heroDescription
+      heroDescription,
+      galleryImages
     });
     setSettingsSuccess(true);
     setTimeout(() => setSettingsSuccess(false), 3000);
@@ -349,6 +351,17 @@ export default function DashboardSection({
             }`}
           >
             <QrCode className="w-3.5 h-3.5" /> Store Branding
+          </button>
+          
+          <button
+            onClick={() => setSubTab("gallery")}
+            className={`px-4 py-2.5 text-xs font-bold rounded-full flex items-center gap-1.5 cursor-pointer transition-all ${
+              subTab === "gallery"
+                ? "bg-brand-rose text-white shadow-md shadow-rose-200 dark:shadow-none"
+                : "bg-white hover:bg-pink-50 dark:bg-neutral-950 dark:text-gray-300 border border-pink-100 dark:border-neutral-800 text-gray-600"
+            }`}
+          >
+            <Camera className="w-3.5 h-3.5" /> Gallery
           </button>
         </div>
       </section>
@@ -1227,6 +1240,69 @@ export default function DashboardSection({
               </button>
             </form>
           </div>
+        </div>
+      )}
+
+      {subTab === "gallery" && (
+        <div className="max-w-4xl mx-auto glass-panel dark:bg-neutral-900 p-6 sm:p-8 rounded-3xl border border-pink-100 space-y-6 text-left">
+          <div className="flex items-center gap-2 border-b border-pink-50 dark:border-neutral-800 pb-3">
+            <Camera className="w-5 h-5 text-brand-rose" />
+            <h4 className="font-serif text-lg font-bold text-gray-900 dark:text-white">Gallery Images</h4>
+          </div>
+          {settingsSuccess && (
+            <div className="p-3 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold text-center">
+              ✔️ Gallery updated successfully!
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            {galleryImages.map((img: any, idx: number) => (
+              <div key={idx} className="flex flex-col sm:flex-row gap-4 p-4 border border-pink-100 dark:border-neutral-800 rounded-xl bg-white dark:bg-neutral-950">
+                <img src={img.url} alt="preview" className="w-full sm:w-32 h-32 object-cover rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <input type="text" value={img.url} onChange={(e) => {
+                    const newImages = [...galleryImages];
+                    newImages[idx].url = e.target.value;
+                    setGalleryImages(newImages);
+                  }} placeholder="Image URL" className="w-full px-3 py-1.5 text-sm bg-neutral-50 dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 rounded-lg focus:ring-1 focus:ring-brand-rose outline-none font-medium text-brand-rose" />
+                  
+                  <div className="flex gap-2">
+                    <input type="text" value={img.title} onChange={(e) => {
+                      const newImages = [...galleryImages];
+                      newImages[idx].title = e.target.value;
+                      setGalleryImages(newImages);
+                    }} placeholder="Title" className="w-1/2 px-3 py-1.5 text-sm bg-neutral-50 dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 rounded-lg focus:ring-1 focus:ring-brand-rose outline-none font-bold" />
+                    
+                    <input type="text" value={img.category} onChange={(e) => {
+                      const newImages = [...galleryImages];
+                      newImages[idx].category = e.target.value;
+                      setGalleryImages(newImages);
+                    }} placeholder="Category" className="w-1/2 px-3 py-1.5 text-sm bg-neutral-50 dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 rounded-lg focus:ring-1 focus:ring-brand-rose outline-none font-semibold text-xs text-gray-500 uppercase" />
+                  </div>
+                  
+                  <input type="text" value={img.desc} onChange={(e) => {
+                    const newImages = [...galleryImages];
+                    newImages[idx].desc = e.target.value;
+                    setGalleryImages(newImages);
+                  }} placeholder="Description" className="w-full px-3 py-1.5 text-sm bg-neutral-50 dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 rounded-lg focus:ring-1 focus:ring-brand-rose outline-none" />
+                </div>
+                <button type="button" onClick={() => {
+                  const newImages = [...galleryImages];
+                  newImages.splice(idx, 1);
+                  setGalleryImages(newImages);
+                }} className="self-end sm:self-center p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors cursor-pointer">
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={() => setGalleryImages([...galleryImages, { id: Math.random().toString(), title: "New Creation", desc: "A gorgeous handmade piece.", category: "New", url: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80" }])} className="w-full py-4 border-2 border-dashed border-pink-200 dark:border-neutral-700 text-brand-rose dark:text-pink-400 font-bold rounded-xl hover:bg-pink-50 dark:hover:bg-neutral-800 transition-colors cursor-pointer flex justify-center items-center gap-2 text-sm">
+            <Plus className="w-4 h-4" /> Add New Gallery Item
+          </button>
+          
+          <button onClick={handleSaveQRSettings} className="w-full py-3 bg-brand-rose hover:bg-brand-rose-dark text-white rounded-xl font-bold uppercase transition-colors shadow-md hover:shadow-lg cursor-pointer text-sm">
+            Save Gallery Configuration
+          </button>
         </div>
       )}
 

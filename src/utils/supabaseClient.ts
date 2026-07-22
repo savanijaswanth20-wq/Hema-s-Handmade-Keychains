@@ -593,7 +593,8 @@ export async function supabaseFetchSettings(): Promise<AdminSettings> {
     qrImageUrl: data.qr_image_url || "",
     logoUrl: data.logo_url || "",
     heroTitle: data.hero_title || "",
-    heroDescription: data.hero_description || ""
+    heroDescription: data.hero_description || "",
+    galleryImages: data.gallery_images || []
   };
 }
 
@@ -613,6 +614,7 @@ export async function supabaseSaveSettings(settings: Partial<AdminSettings>): Pr
 
   if (settings.heroTitle !== undefined) updateData.hero_title = settings.heroTitle;
   if (settings.heroDescription !== undefined) updateData.hero_description = settings.heroDescription;
+  if (settings.galleryImages !== undefined) updateData.gallery_images = settings.galleryImages;
 
   const { data, error } = await supabase
     .from("admin_settings")
@@ -633,7 +635,8 @@ export async function supabaseSaveSettings(settings: Partial<AdminSettings>): Pr
     qrImageUrl: data.qr_image_url || "",
     logoUrl: data.logo_url || "",
     heroTitle: data.hero_title || "",
-    heroDescription: data.hero_description || ""
+    heroDescription: data.hero_description || "",
+    galleryImages: data.gallery_images || []
   };
 }
 

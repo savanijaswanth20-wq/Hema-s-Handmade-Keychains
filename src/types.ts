@@ -47,6 +47,14 @@ export interface Review {
   createdAt: string;
 }
 
+export interface GalleryItem {
+  id?: string;
+  title: string;
+  desc: string;
+  category: string;
+  url: string;
+}
+
 export interface AdminSettings {
   upiId: string;
   upiName: string;
@@ -58,4 +66,5 @@ export interface AdminSettings {
   logoUrl?: string;
   heroTitle?: string;
   heroDescription?: string;
+  galleryImages?: GalleryItem[];
 }

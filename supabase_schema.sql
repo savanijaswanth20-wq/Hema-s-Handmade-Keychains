@@ -192,6 +192,7 @@ create table if not exists public.admin_settings (
     logo_url text,
     hero_title text,
     hero_description text,
+    gallery_images jsonb default '[]'::jsonb,
     updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
