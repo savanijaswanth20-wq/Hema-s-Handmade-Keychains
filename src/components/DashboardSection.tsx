@@ -348,7 +348,7 @@ export default function DashboardSection({
                 : "bg-white hover:bg-pink-50 dark:bg-neutral-950 dark:text-gray-300 border border-pink-100 dark:border-neutral-800 text-gray-600"
             }`}
           >
-            <QrCode className="w-3.5 h-3.5" /> QR Setup
+            <QrCode className="w-3.5 h-3.5" /> Store Branding
           </button>
         </div>
       </section>
