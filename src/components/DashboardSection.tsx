@@ -1260,11 +1260,29 @@ export default function DashboardSection({
               <div key={idx} className="flex flex-col sm:flex-row gap-4 p-4 border border-pink-100 dark:border-neutral-800 rounded-xl bg-white dark:bg-neutral-950">
                 <img src={img.url} alt="preview" className="w-full sm:w-32 h-32 object-cover rounded-lg" />
                 <div className="flex-1 space-y-2">
-                  <input type="text" value={img.url} onChange={(e) => {
-                    const newImages = [...galleryImages];
-                    newImages[idx].url = e.target.value;
-                    setGalleryImages(newImages);
-                  }} placeholder="Image URL" className="w-full px-3 py-1.5 text-sm bg-neutral-50 dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 rounded-lg focus:ring-1 focus:ring-brand-rose outline-none font-medium text-brand-rose" />
+                  <div className="flex gap-2">
+                    <input type="text" value={img.url} onChange={(e) => {
+                      const newImages = [...galleryImages];
+                      newImages[idx].url = e.target.value;
+                      setGalleryImages(newImages);
+                    }} placeholder="Image URL" className="flex-1 px-3 py-1.5 text-sm bg-neutral-50 dark:bg-neutral-900 border border-pink-100 dark:border-neutral-800 rounded-lg focus:ring-1 focus:ring-brand-rose outline-none font-medium text-brand-rose" />
+                    
+                    <label className="bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold flex items-center justify-center gap-1 transition-colors border border-pink-100 dark:border-neutral-700 whitespace-nowrap">
+                      <Upload className="w-3.5 h-3.5" /> Upload File
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            const newImages = [...galleryImages];
+                            newImages[idx].url = reader.result as string;
+                            setGalleryImages(newImages);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }} />
+                    </label>
+                  </div>
                   
                   <div className="flex gap-2">
                     <input type="text" value={img.title} onChange={(e) => {
