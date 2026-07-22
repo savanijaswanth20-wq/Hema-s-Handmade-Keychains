@@ -56,4 +56,6 @@ export interface AdminSettings {
   instagramId: string;
   qrImageUrl?: string;
   logoUrl?: string;
+  heroTitle?: string;
+  heroDescription?: string;
 }

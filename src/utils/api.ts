@@ -267,7 +267,9 @@ export async function fetchSettings(): Promise<AdminSettings> {
       businessName: "CuteCharm Keychains",
       whatsappNumber: "+91 9640653603",
       instagramId: "@hemas_tiny_universe",
-      qrImageUrl: ""
+      qrImageUrl: "",
+      heroTitle: "Hema's Tiny Universe",
+      heroDescription: "I handcraft cute accessories in my home unit located in Marathahalli, Bengaluru. Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts."
     };
   }
 }

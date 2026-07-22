@@ -50,6 +50,8 @@ export default function DashboardSection({
   const [instagramId, setInstagramId] = useState(upiSettings.instagramId || "@hemas_tiny_universe");
   const [qrImageUrl, setQrImageUrl] = useState(upiSettings.qrImageUrl || "");
   const [logoUrl, setLogoUrl] = useState(upiSettings.logoUrl || "");
+  const [heroTitle, setHeroTitle] = useState(upiSettings.heroTitle || "Hema's Handmade Clay Accessories");
+  const [heroDescription, setHeroDescription] = useState(upiSettings.heroDescription || "I handcraft cute accessories in my home unit located in Marathahalli, Bengaluru. Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts.");
   const [settingsSuccess, setSettingsSuccess] = useState(false);
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
 
@@ -126,7 +128,9 @@ export default function DashboardSection({
       whatsappNumber,
       instagramId,
       qrImageUrl,
-      logoUrl
+      logoUrl,
+      heroTitle,
+      heroDescription
     });
     setSettingsSuccess(true);
     setTimeout(() => setSettingsSuccess(false), 3000);
@@ -983,6 +987,28 @@ export default function DashboardSection({
                 onChange={(e) => setBannerMessage(e.target.value)}
                 placeholder="EVERY PURCHASE SUPPORTS A LOCAL ARTIST IN MARATHAHALLI!"
                 className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
+              />
+            </div>
+            
+            <div className="space-y-1.5">
+              <label className="text-gray-700 dark:text-gray-300">Hero Section Title</label>
+              <input
+                type="text"
+                value={heroTitle}
+                onChange={(e) => setHeroTitle(e.target.value)}
+                placeholder="Hema's Handmade Clay Accessories"
+                className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-gray-700 dark:text-gray-300">Hero Section Description (About)</label>
+              <textarea
+                value={heroDescription}
+                onChange={(e) => setHeroDescription(e.target.value)}
+                placeholder="I handcraft cute accessories in my home unit located in Marathahalli..."
+                rows={3}
+                className="w-full px-4 py-2.5 text-sm bg-white dark:bg-neutral-950 dark:text-white rounded-xl border border-pink-100 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-brand-rose font-medium resize-none"
               />
             </div>
 

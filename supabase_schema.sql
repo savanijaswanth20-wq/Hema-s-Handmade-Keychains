@@ -190,6 +190,8 @@ create table if not exists public.admin_settings (
     instagram_id text not null default 'hemas_tiny_universe',
     qr_image_url text,
     logo_url text,
+    hero_title text,
+    hero_description text,
     updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

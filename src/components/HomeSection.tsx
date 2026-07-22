@@ -445,12 +445,10 @@ export default function HomeSection({
         <div className="bg-white/45 dark:bg-neutral-900/50 backdrop-blur-md border border-white/60 dark:border-neutral-800 p-8 sm:p-10 rounded-[2.5rem] shadow-sm flex flex-col justify-between space-y-6 text-left">
           <div className="space-y-4">
             <h3 className="font-sans font-bold text-gray-800 dark:text-white text-xl sm:text-2xl">
-              Hema's Tiny Universe
+              {upiSettings.heroTitle || "Hema's Tiny Universe"}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-300 leading-relaxed font-medium mt-3">
-              I handcraft cute accessories in my home unit located in{" "}
-              <strong className="text-brand-rose dark:text-pink-400">Marathahalli, Bengaluru</strong>. 
-              Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts.
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-300 leading-relaxed font-medium mt-3 whitespace-pre-wrap">
+              {upiSettings.heroDescription || "I handcraft cute accessories in my home unit located in Marathahalli, Bengaluru. Have a customized idea? Just drop a message! I can sculpt custom cartoons, replicate your pet, or make personalized anniversary gifts."}
             </p>
           </div>
 

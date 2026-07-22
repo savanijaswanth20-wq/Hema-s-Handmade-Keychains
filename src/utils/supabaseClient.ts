@@ -591,14 +591,16 @@ export async function supabaseFetchSettings(): Promise<AdminSettings> {
     whatsappNumber: data.whatsapp_number,
     instagramId: data.instagram_id,
     qrImageUrl: data.qr_image_url || "",
-    logoUrl: data.logo_url || ""
+    logoUrl: data.logo_url || "",
+    heroTitle: data.hero_title || "",
+    heroDescription: data.hero_description || ""
   };
 }
 
 export async function supabaseSaveSettings(settings: Partial<AdminSettings>): Promise<AdminSettings> {
   if (!supabase) throw new Error("Supabase not configured");
 
-  const updateData = {
+  const updateData: any = {
     upi_id: settings.upiId,
     upi_name: settings.upiName,
     banner_message: settings.bannerMessage,
@@ -608,6 +610,9 @@ export async function supabaseSaveSettings(settings: Partial<AdminSettings>): Pr
     qr_image_url: settings.qrImageUrl,
     logo_url: settings.logoUrl
   };
+
+  if (settings.heroTitle !== undefined) updateData.hero_title = settings.heroTitle;
+  if (settings.heroDescription !== undefined) updateData.hero_description = settings.heroDescription;
 
   const { data, error } = await supabase
     .from("admin_settings")
@@ -626,7 +631,9 @@ export async function supabaseSaveSettings(settings: Partial<AdminSettings>): Pr
     whatsappNumber: data.whatsapp_number,
     instagramId: data.instagram_id,
     qrImageUrl: data.qr_image_url || "",
-    logoUrl: data.logo_url || ""
+    logoUrl: data.logo_url || "",
+    heroTitle: data.hero_title || "",
+    heroDescription: data.hero_description || ""
   };
 }
 
